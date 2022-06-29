@@ -1,0 +1,23 @@
+x-contracts-recent {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+x-contracts-recent #index {
+  display: flex;
+  flex-direction: column;
+}
+
+x-contracts-recent a {
+  margin-bottom: 0.5rem;
+}
+
+x-contracts-recent a:last-of-type {
+  margin-bottom: 0;
+}
+
+
+x-contracts-recent #clear {
+  margin-top: 1rem;
+}

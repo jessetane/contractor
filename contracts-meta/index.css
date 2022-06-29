@@ -1,0 +1,16 @@
+x-contracts-meta {
+  display: block;
+}
+
+x-contracts-meta h1 {
+  margin-bottom: 0;
+}
+
+x-contracts-meta h2 {
+  margin-top: 0.5rem;
+  margin-bottom: 0;
+}
+
+x-contracts-meta #actions {
+  margin-top: 1rem;
+}

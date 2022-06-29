@@ -1,0 +1,37 @@
+x-contracts-single x-contracts-meta {
+  margin-bottom: 2rem;
+}
+
+x-contracts-single #properties #sections {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+}
+
+x-contracts-single #properties h2 {
+  margin-bottom: 1rem;
+}
+
+x-contracts-single #properties h3 {
+  margin-bottom: 0.5rem;
+}
+
+x-contracts-single .property-group {
+  flex-grow: 1;
+  flex-shrink: 0;
+}
+
+x-contracts-single #index {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+x-contracts-single .property-group a:first-child {
+  margin-top: 0.25;
+}
+
+x-contracts-single .property-group a {
+  white-space: nowrap;
+  margin-top: 0.5rem;
+}

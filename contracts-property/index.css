@@ -1,0 +1,17 @@
+x-contracts-property x-contracts-meta {
+  margin-bottom: 2rem;
+}
+
+x-contracts-property #property {
+  margin-bottom: 1rem;
+}
+
+x-contracts-property form button {
+  text-transform: capitalize;
+}
+
+x-contracts-property #output {
+  margin-top: 2rem;
+  white-space: pre-wrap;
+  font-family: monospace;
+}

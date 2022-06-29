@@ -1,0 +1,20 @@
+{
+  "name": "contractor",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "ROOT=. app-server"
+  },
+  "devDependencies": {
+    "app-server": "github:jessetane/app-server#4.1.1"
+  },
+  "dependencies": {
+    "deferred": "github:jessetane/deferred#1.0.0",
+    "eth-scripts": "github:jessetane/eth-scripts#2.0.1",
+    "ethers": "^5.6.9",
+    "hyperbind": "^6.2.0",
+    "url-state": "^3.0.0",
+    "wallet-connect": "github:jessetane/wallet-connect#a6c6d92"
+  },
+  "license": "MIT"
+}

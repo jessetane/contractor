@@ -1,0 +1,30 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Contractor</title>
+    <meta name=viewport content="width=device-width,initial-scale=1,user-scalable=no">
+    <link rel=stylesheet href=/index.css>
+  </head>
+  <body>
+    <x-app>
+      <x-nav></x-nav>
+      <div id=views class=view></div>
+    </x-app>
+    <script type=importmap>
+      {
+        "imports": {
+          "ethers": "/node_modules/ethers/dist/ethers.esm.js",
+          "deferred": "/node_modules/deferred/index.js",
+          "rpc-engine": "/node_modules/rpc-engine/index.js",
+          "utf8-transcoder": "/node_modules/utf8-transcoder/index.js",
+          "hex-transcoder": "/node_modules/hex-transcoder/index.js",
+          "hyperbind": "/node_modules/hyperbind/index.js",
+          "wallet-connect": "/node_modules/wallet-connect/index.js",
+          "url-state": "/node_modules/url-state/index.js",
+          "eth-scripts/": "/node_modules/eth-scripts/"
+        }
+      }
+    </script>
+    <script type=module src=/index.js></script>
+  </body>
+</html>

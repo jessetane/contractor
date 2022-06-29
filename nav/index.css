@@ -1,0 +1,12 @@
+x-nav {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+}
+
+x-nav #account {
+  margin-left: auto;
+}
