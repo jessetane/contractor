@@ -295,7 +295,7 @@ state.connect = async function (session) {
   const meta = {
     name: 'Contractor',
     description: 'Generic smart contract interfaces',
-    url: 'http://localhost:8080',
+    url: window.location.origin,
     icons: []
   }
   if (session) {
