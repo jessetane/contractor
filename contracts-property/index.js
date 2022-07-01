@@ -144,23 +144,28 @@ class ContractsProperty extends HTMLElement {
     const iface = contract.proxy ? contract.proxy.iface : contract.iface
     const args = []
     let txValue = undefined
-    let sawEmpty = false
+    let sawEmpty = 0
     Array.from(this.querySelectorAll('input')).forEach(input => {
       let value = input.value
       if (input.name === 'value') {
         txValue = state.ethers.utils.parseEther(value || '0')
       } else if (value) {
         if (sawEmpty) {
-          throw new Error('invalid arguments')
+          sawEmpty = 2
+          return
         }
         if (input.placeholder.match(/\[\]$/)) {
           value = value.split(',').map(i => i.trim())
         }
         args.push(value)
       } else {
-        sawEmpty = true
+        sawEmpty = 1
       }
     })
+    if (sawEmpty === 2) {
+      alert('Missing argument')
+      return
+    }
     let output = ''
     const operating = Math.random()
     this.operating = operating
