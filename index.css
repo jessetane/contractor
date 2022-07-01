@@ -89,6 +89,7 @@ textarea {
 select {
   padding: 0.4rem;
   border: 1px solid #888;
+  border-radius: 0;
   background: #fff;
   color: #444;
   outline: none;

@@ -19,6 +19,7 @@ x-contracts-single #properties h3 {
 x-contracts-single .property-group {
   flex-grow: 1;
   flex-shrink: 0;
+  max-width: 100%;
 }
 
 x-contracts-single #index {
@@ -34,4 +35,7 @@ x-contracts-single .property-group a:first-child {
 x-contracts-single .property-group a {
   white-space: nowrap;
   margin-top: 0.5rem;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
