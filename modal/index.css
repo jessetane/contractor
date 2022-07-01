@@ -14,9 +14,16 @@ x-modal {
 }
 
 x-modal #text {
-  margin-top: 2rem;
+  margin-top: 1rem;
   color: #fff;
   font-weight: 600;
 }
 
+x-modal button {
+  margin-top: 1rem;
+}
 
+x-modal a {
+  display: block;
+  margin-top: 1rem;
+}
