@@ -7,7 +7,6 @@ const lsPrefix = 'contractor'
 const proxySlot = ethers.BigNumber.from(ethers.utils.id('eip1967.proxy.implementation')).sub(1).toHexString()
 
 const state = new EventTarget()
-state.account = null
 state.ethers = ethers
 state.url = url
 state.change = () => state.dispatchEvent(new Event('change'))
@@ -70,6 +69,16 @@ Object.defineProperty(state, 'recentAbis', {
     })
     network.cache = {}
     state.change()
+  }
+})
+
+Object.defineProperty(state, 'account', {
+  get: function () {
+    if (state.wallet) {
+      return state.wallet.peerAccounts[0]
+    } else if (state.extension) {
+      return state.extension.account
+    }
   }
 })
 
@@ -276,21 +285,22 @@ state.search = async function (address, page = 0, size = 1000) {
   return await network.provider.getHistory(address, end, start)
 }
 
-state.disconnect = async function () {
+state.disconnect = function () {
+  if (state.extension) {
+    ethereum.removeListener('accountsChanged', state.extension.onaccountsChanged)
+    ethereum.removeListener('chainChanged', state.extension.onchainChanged)
+    delete localStorage[lsPrefix + '.metaMaskSession']
+    delete state.extension
+    state.change()
+  }
   if (state.wallet) {
-    await state.wallet.destroySession()
-  } else {
-    throw new Error('not connected')
+    state.wallet.destroySession()
   }
 }
 
 state.connect = async function (session) {
   if (state.wallet) {
-    if (!state.wallet.socket) {
-      await reconnect()
-    } else {
-      throw new Error('session already in progress')
-    }
+    throw new Error('session already in progress')
   }
   const meta = {
     name: 'Contractor',
@@ -308,62 +318,93 @@ state.connect = async function (session) {
     console.log('wallet existing session found', session)
   }
   const wallet = state.wallet = new WalletConnect(session ? Object.assign({ meta }, session) : { meta })
-  if (!wallet.chainId || isNaN(wallet.chainId)) {
-    wallet.chainId = parseInt(wallet.chainId || state.chainId)
-  }
-  wallet.addEventListener('bridgeClose', () => {
-    console.log('bridge closed')
-    wallet.reconnectTimer = setTimeout(reconnect, 1000 * 15)
-  })
   wallet.addEventListener('sessionUpdate', () => {
     const session = wallet.session
     console.log('wallet session update', session)
-    updateSession(session)
+    if (session.chainId && session.peerAccounts.length) {
+      localStorage[lsPrefix + '.walletConnectSession'] = JSON.stringify(session)
+      if (state.chainId !== wallet.chainId.toString()) {
+        try {
+          state.network = wallet.chainId
+          return
+        } catch (err) {
+          alert('Wallet switched to an unknown network: ' + wallet.chainId)
+        }
+      }
+    }
+    state.change()
   })
   wallet.addEventListener('sessionDestroy', () => {
     console.log('wallet session destroy')
-    clearTimeout(wallet.reconnectTimer)
     delete localStorage[lsPrefix + '.walletConnectSession']
     delete state.wallet
-    state.account = null
     state.change()
   })
   if (session) {
-    await reconnect()
+    await wallet.resumeSession()
   } else {
-    await wallet.openBridge()
-    if (state.wallet !== wallet) return
     const evt = new Event('sessionCreate')
     const uri = evt.uri = wallet.uri
     state.dispatchEvent(evt) // used by nav to display qrcode
     await wallet.createSession()
-    if (state.wallet !== wallet) return
-    const session = wallet.session
-    updateSession(session)
-    console.log('wallet session created', session)
   }
-  async function reconnect () {
-    clearTimeout(wallet.reconnectTimer)
-    if (state.wallet !== wallet) return
-    await wallet.openBridge()
-    if (state.wallet !== wallet) return
-    await wallet.resumeSession()
-    state.account = wallet.peerAccounts[0]
+}
+
+state.connectExtension = async function () {
+  if (!window.ethereum || !ethereum.isConnected()) {
+    throw new Error('Extension not found')
+  }
+  function onaccountsChanged (accounts) {
+    console.log('extension accountsChanged', accounts)
+    if (accounts.length) {
+      state.extension.account = accounts[0]
+      state.change()
+    } else {
+      state.disconnect()
+    }
+  }
+  function onchainChanged (chainId) {
+    chainId = parseInt(chainId)
+    console.log('extension chainChanged', chainId)
+    state.extension.chainId = chainId
+    try {
+      state.network = chainId
+    } catch (err) {
+      alert('Extension switched to an unknown network: ' + chainId)
+    }
     state.change()
   }
-  function updateSession (session) {
-    state.account = session.peerAccounts[0]
-    localStorage[lsPrefix + '.walletConnectSession'] = JSON.stringify(session)
-    if (state.chainId !== wallet.chainId.toString()) {
-      try {
-        state.network = wallet.chainId
-      } catch (err) {
-        alert('Wallet switched to an unknown network: ' + wallet.chainId)
-        wallet.chainId = parseInt(state.chainId)
-      }
-    } else {
-      state.change()
+  state.extension = {
+    onaccountsChanged,
+    onchainChanged
+  }
+  let accounts = await ethereum.request({ method: 'eth_accounts' })
+  if (!accounts.length) {
+    accounts = await ethereum.request({ method: 'eth_requestAccounts' })
+    if (!accounts.length) {
+      throw new Error('Extension did not provide any accounts')
     }
+  }
+  state.extension.account = accounts[0]
+  const chainId = state.extension.chainId = parseInt(await ethereum.request({ method: 'eth_chainId' }))
+  try {
+    state.network = chainId
+  } catch (err) {
+    alert('Extension switched to an unknown network: ' + chainId)
+    state.change()
+  }
+  ethereum.on('accountsChanged', onaccountsChanged)
+  ethereum.on('chainChanged', onchainChanged)
+  localStorage[lsPrefix + '.metaMaskSession'] = 'yes'
+}
+
+state.call = async function () {
+  if (state.wallet) {
+    return state.wallet.call(...arguments)
+  } else if (state.extension) {
+    return ethereum.request({ method: arguments[0], params: Array.from(arguments).slice(1) })
+  } else {
+    throw new Error('No wallet connected')
   }
 }
 
@@ -407,33 +448,52 @@ async function main () {
   if (!networksById[state.chainId]) {
     state.chainId = localStorage[lsPrefix + '.chainId'] = 1
   }
-  // resume wallet connect session
-  const session = localStorage[lsPrefix + '.walletConnectSession']
-  if (session) {
-    while (true) {
-      try {
-        await state.connect(session)
-        break
-      } catch (err) {
-        if (state.wallet) {
-          if (!window.prompt(err.message + ' try again?')) {
-            state.wallet.destroySession()
-            break
-          }
-        } else {
-          alert(err.message)
-          state.change()
-          break
+  // safari workaround for broken websockets
+  document.addEventListener('visibilitychange', () => {
+    if (state.wallet) {
+      if (document.visibilityState === 'visible') {
+        if (!state.wallet.socket) {
+          console.log('reopening socket')
+          state.wallet.openBridge()
+        }
+      } else {
+        if (state.wallet.socket) {
+          console.log('closing socket manually')
+          state.wallet.closeBridge()
         }
       }
     }
-  } else if (false) {
-    // metamask extension?
+  })
+  // resume wallet connect session
+  const wcSession = localStorage[lsPrefix + '.walletConnectSession']
+  const mmSession = localStorage[lsPrefix + '.metaMaskSession']
+  if (wcSession) {
+    function askUserToCancel () {
+      if (window.confirm('Failed to resume wallet connect session, keep trying?')) {
+        timeout = setTimeout(askUserToCancel, 5 * 1000)
+      } else {
+        state.disconnect()
+      }
+    }
+    let timeout = setTimeout(askUserToCancel, 5 * 1000)
+    try {
+      await state.connect(wcSession)
+      clearTimeout(timeout)
+    } catch (err) {
+      clearTimeout(timeout)
+      alert(err.message)
+    }
+  } else if (mmSession) {
+    try {
+      await state.connectExtension()
+      state.change()
+    } catch (err) {
+      alert(err.message)
+      state.disconnect()
+    }
   } else {
     state.change()
   }
 }
-
-  
 
 main()

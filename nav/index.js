@@ -18,16 +18,12 @@ class Nav extends HTMLElement {
 <button id=connect class=hidden>Connect</button>
 <button id=disconnect class=hidden>Disconnect</button>`
     this.querySelector('#connect').addEventListener('click', async () => {
-      if (state.wallet) {
-        alert('session already in progress')
-        return
-      }
       try {
         await state.connect()
       } catch (err) {
-        alert(err.message)
         if (state.wallet) {
-          await state.wallet.destroySession()
+          alert(err.message)
+          state.wallet.destroySession()
         }
       }
     })
@@ -44,6 +40,7 @@ class Nav extends HTMLElement {
         await state.disconnect()
       })
       document.body.appendChild(modal)
+      this.render()
     })
     this.render()
   }
@@ -54,7 +51,7 @@ class Nav extends HTMLElement {
       '#account': {
         $text: !network
           ? 'Connecting...'
-          : state.account
+          : (state.account || '')
       },
       '#network': {
         $attr: {
@@ -74,10 +71,10 @@ class Nav extends HTMLElement {
         }
       },
       '#connect': {
-        $class: { hidden: !state.network || state.account || state.wallet }
+        $class: { hidden: !state.network || state.account }
       },
       '#disconnect': {
-        $class: { hidden: !state.network || (!state.account && !state.wallet) }
+        $class: { hidden: !state.network || !state.account }
       }
     })
   }

@@ -37,11 +37,9 @@ class NetworksSingle extends HTMLElement {
       const chainId = this.querySelector('[name=chainId]').value
       try {
         if (!chainId) throw new Error('Missing chainId')
-        const result = await state.addNetworkToWallet(chainId)
-        console.log('got result!', result)
+        await state.addNetworkToWallet(chainId)
       } catch (err) {
-        console.error('add-to-wallet failed', err)
-        alert(err)
+        alert(err.message)
       }
     })
     this.querySelector('#delete').addEventListener('click', async () => {
@@ -94,7 +92,7 @@ class NetworksSingle extends HTMLElement {
       '[name=chainId]': { $prop: { value: network.chainId || null }},
       '[name=rpcUrls]': { $prop: { value: (network.rpcUrls || []).join(', ') }},
       '[name=abiUrl]': { $prop: { value: network.abiUrl || null }},
-      '#add-to-wallet': { $class: { hidden: isCreate || !state.wallet || state.chainId === network.chainId }},
+      '#add-to-wallet': { $class: { hidden: isCreate || !state.account || state.chainId === network.chainId }},
       '#delete': { $class: { hidden: isCreate }},
       '#save': isCreate ? 'Create' : 'Save'
     })

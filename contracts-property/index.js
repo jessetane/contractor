@@ -12,7 +12,7 @@ template.innerHTML = `<x-contracts-meta></x-contracts-meta>
   <div class=row>
     <button id=run class=hidden type=submit></button>
     <button id=call class=hidden type=submit>Call</button>
-    <button id=sign class=hidden type=submit>Sign</button>
+    <!--<button id=sign class=hidden type=submit>Sign</button>-->
     <button id=send class=hidden type=submit>Send</button>
   </div>
 </form>
@@ -193,9 +193,9 @@ class ContractsProperty extends HTMLElement {
               output = state.ethers.utils.toUtf8String(reason)
             }
           } else if (btn === 'sign') {
-            output = await state.wallet.call('eth_signTransaction', tx)
+            output = await state.call('eth_sign', state.account, JSON.stringify(tx))
           } else if (btn === 'send') {
-            output = await state.wallet.call('eth_sendTransaction', tx)
+            output = await state.call('eth_sendTransaction', tx)
           } else {
             output = tx.data
           }
