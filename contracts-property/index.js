@@ -184,13 +184,20 @@ class ContractsProperty extends HTMLElement {
           tx.from = state.account
           const btn = evt.submitter.id
           if (btn === 'call') {
-            const ret = await state.network.provider.call(tx)
-            if (ret === '0x') {
-              output = 'no revert reason found'
-            } else {
-              const stringLength = state.ethers.BigNumber.from(`0x${ret.slice(2 + 4 * 2 + 32 * 2).slice(0, 32 * 2)}`).toNumber()
-              const reason = `0x${ret.substr(138).slice(0, stringLength * 2)}`
-              output = state.ethers.utils.toUtf8String(reason)
+            try {
+              const ret = await state.network.provider.call(tx)
+              if (property.outputs && property.outputs.length) {
+                output = ret
+              } else if (ret === '0x') {
+                output = 'Success'
+              } else {
+                const stringLength = state.ethers.BigNumber.from(`0x${ret.slice(2 + 4 * 2 + 32 * 2).slice(0, 32 * 2)}`).toNumber()
+                const reason = `0x${ret.substr(138).slice(0, stringLength * 2)}`
+                output = state.ethers.utils.toUtf8String(reason)
+              }
+            } catch (err) {
+              while (err.error) err = err.error
+              output = err.message
             }
           } else if (btn === 'sign') {
             output = await state.call('eth_sign', state.account, JSON.stringify(tx))
