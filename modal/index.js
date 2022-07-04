@@ -11,8 +11,8 @@ class Modal extends HTMLElement {
     this.innerHTML = `<div id=image></div>
 <div id=text></div>
 <button id=extension>MetaMask extension</button>
-<a href=${this.uri}>Generic/Android style deeplink</a>
-<a href=https://metamask.app.link/wc?uri=${encodeURIComponent(this.uri)}>MetaMask universal link</a>`
+<a href=https://metamask.app.link/wc?uri=${encodeURIComponent(this.uri)}>MetaMask universal link</a>
+<a href=${this.uri}>Generic/Android style deeplink</a>`
     const typeNumber = 9
     const errorCorrectionLevel = 'L'
     const qr = qrcode(typeNumber, errorCorrectionLevel)
