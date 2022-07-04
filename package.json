@@ -14,7 +14,7 @@
     "ethers": "^5.6.9",
     "hyperbind": "^6.2.0",
     "url-state": "^3.0.2",
-    "wallet-connect": "github:jessetane/wallet-connect#2.0.0"
+    "wallet-connect": "github:jessetane/wallet-connect#3.0.0"
   },
   "license": "MIT"
 }
