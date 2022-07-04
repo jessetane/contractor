@@ -201,8 +201,13 @@ class ContractsProperty extends HTMLElement {
           }
           break
         case 'event':
+          const page = 1
+          const size = 1000
+          const currentBlock = await state.network.provider.getBlockNumber()
+          const start = currentBlock - size * page
+          const end = start + size
           const filter = iface.filters[property.name]
-          const events = await iface.queryFilter(filter(...args))
+          const events = await iface.queryFilter(filter(...args), start, end)
           output = events.map(evt => {
             const line = {}
             property.inputs.forEach((input, i) => {
@@ -213,6 +218,7 @@ class ContractsProperty extends HTMLElement {
                 arg = arg.map(a => a instanceof state.ethers.BigNumber ? a.toString() : a).join(', ')
               }
               line[input.name] = arg // instanceof state.ethers.BigNumber ? arg.toString() : arg
+              line.transaction = evt.transactionHash
             })
             return line
           })
