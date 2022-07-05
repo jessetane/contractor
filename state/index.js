@@ -38,6 +38,7 @@ Object.defineProperty(state, 'network', {
     if (state.chainId === network.chainId) return
     state.chainId = localStorage[lsPrefix + '.chainId'] = network.chainId
     state.change()
+    state.updateBlockNumber()
   }
 })
 
@@ -81,6 +82,11 @@ Object.defineProperty(state, 'account', {
     }
   }
 })
+
+state.updateBlockNumber = async function () {
+  state.blockNumber = await state.network.provider.getBlockNumber()
+  state.change()
+}
 
 state.saveNetwork = async function (chainId, params) {
   let network = state.networksById[chainId]
@@ -492,6 +498,11 @@ async function main () {
     }
   } else {
     state.change()
+  }
+  updateBlockNumber()
+  async function updateBlockNumber () {
+    await state.updateBlockNumber()
+    setTimeout(updateBlockNumber, 10 * 1000)
   }
 }
 

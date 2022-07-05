@@ -14,6 +14,7 @@ class Nav extends HTMLElement {
 <a href=/contracts>Contracts</a>
 <a href=/networks>Networks</a>
 <div id=account></div>
+<div id=block-number></div>
 <select id=network name=network></select>
 <button id=connect class=hidden>Connect</button>
 <button id=disconnect class=hidden>Disconnect</button>`
@@ -53,6 +54,7 @@ class Nav extends HTMLElement {
           ? 'Connecting...'
           : (state.account || '')
       },
+      '#block-number': state.blockNumber,
       '#network': {
         $attr: {
           disabled: !state.network || state.account ? 'disabled' : null
