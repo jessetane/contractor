@@ -27,7 +27,7 @@ class NetworksIndex extends HTMLElement {
       '#index': {
         $list: {
           key: 'chainId',
-          items: state.networks,
+          items: state.networks.sort((a, b) => parseInt(a.chainId) - parseInt(b.chainId)),
           createElement: function () {
             return hb(`<a></a>`)
           },

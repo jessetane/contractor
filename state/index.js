@@ -130,7 +130,6 @@ state.addNetworkToWallet = async function (chainId) {
   const network = state.networksById[chainId]
   if (!network) throw new Error('Unknown network ' + chainId)
   let chainIdHex = parseInt(chainId).toString(16)
-  // while (chainIdHex.length % 2) chainIdHex = `0${chainIdHex}`
   chainIdHex = `0x${chainIdHex}`
   const params = {
     chainId: chainIdHex,
