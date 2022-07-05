@@ -87,15 +87,20 @@ class NetworksSingle extends HTMLElement {
       state.url.push('/networks')
       return
     }
-    hb(this, {
-      '[name=chainName]': { $prop: { value: network.chainName || null }},
-      '[name=chainId]': { $prop: { value: network.chainId || null }},
-      '[name=rpcUrls]': { $prop: { value: (network.rpcUrls || []).join(', ') }},
-      '[name=abiUrl]': { $prop: { value: network.abiUrl || null }},
+    const bindings = {
       '#add-to-wallet': { $class: { hidden: isCreate || !state.account || state.chainId === network.chainId }},
       '#delete': { $class: { hidden: isCreate }},
       '#save': isCreate ? 'Create' : 'Save'
-    })
+    }
+    if (!isCreate) {
+      Object.assign(bindings, {
+        '[name=chainName]': { $prop: { value: network.chainName || null }},
+        '[name=chainId]': { $prop: { value: network.chainId || null }},
+        '[name=rpcUrls]': { $prop: { value: (network.rpcUrls || []).join(', ') }},
+        '[name=abiUrl]': { $prop: { value: network.abiUrl || null }},
+      })
+    }
+    hb(this, bindings)
   }
 }
 
