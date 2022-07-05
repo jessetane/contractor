@@ -1,3 +1,8 @@
+x-home #content {
+  max-width: 640px;
+  line-height: 1.4rem;
+}
+
 x-home x-contracts-recent {
   margin-top: 2rem;
 }
