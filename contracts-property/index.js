@@ -32,6 +32,17 @@ class ContractsProperty extends HTMLElement {
     this.meta = this.querySelector('x-contracts-meta')
     this.meta.addEventListener('load', () => delete this.output)
     this.querySelector('#input').addEventListener('submit', this.run)
+    this.addEventListener('change', evt => {
+      const name = evt.target?.parentElement?.item?.name
+      if (!name) return
+      const value = evt.target?.value
+      const cacheKey = `contractor.values.${state.network.chainId}.${state.url.pathname}.${name}`
+      if (value) {
+        localStorage[cacheKey] = value
+      } else {
+        delete localStorage[cacheKey]
+      }
+    })
     state.change()
   }
 
@@ -92,6 +103,7 @@ class ContractsProperty extends HTMLElement {
     const operating = this.operating
     const output = operating ? 'Operation in progress...' : this.output
     const hideExtendedWriteUI = loading || operating || !property.name || property.uiType !== 'write'
+    const cacheKey = `contractor.values.${state.network.chainId}.${state.url.pathname}`
     hb(this, {
       '#property': {
         $class: { hidden: loading },
@@ -116,7 +128,8 @@ class ContractsProperty extends HTMLElement {
                 $attr: {
                   name: item.name,
                   type: 'text',
-                  placeholder: item.type
+                  placeholder: item.type,
+                  value: localStorage[`${cacheKey}.${name}`] || ''
                 }
               }
             })
