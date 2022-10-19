@@ -176,12 +176,11 @@ class ContractsProperty extends HTMLElement {
           output = await iface[property.name](...args)
           break
         case 'write':
-          const overrides = {}
-          if (!txValue.isZero()) {
-            overrides.value = txValue
-          }
-          const tx = await iface.populateTransaction[property.name](...args, overrides)
+          const tx = await iface.populateTransaction[property.name](...args)
           tx.from = state.account
+          if (!txValue.isZero()) {
+            tx.value = txValue.toHexString()
+          }
           const btn = evt.submitter.id
           if (btn === 'call') {
             try {
