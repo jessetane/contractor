@@ -173,7 +173,8 @@ class ContractsProperty extends HTMLElement {
     try {
       switch (property.uiType) {
         case 'read':
-          output = await iface[property.name](...args)
+          let blockTag = 'latest'
+          output = await iface[property.name](...args, { blockTag })
           break
         case 'write':
           const tx = await iface.populateTransaction[property.name](...args)
