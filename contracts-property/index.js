@@ -1,6 +1,7 @@
 import hb from 'hyperbind'
 import watchTx from 'eth-scripts/watch-tx.js'
 import getRevertReason from 'eth-scripts/get-revert-reason.js'
+import abiv2 from 'eth-scripts/abiv2.js'
 import state from '../state/index.js'
 import '../contracts-meta/index.js'
 
@@ -185,15 +186,23 @@ class ContractsProperty extends HTMLElement {
           const btn = evt.submitter.id
           if (btn === 'call') {
             try {
-              const ret = await state.network.provider.call(tx)
-              if (property.outputs && property.outputs.length) {
-                output = ret
-              } else if (ret === '0x') {
+              let ret = await state.network.provider.call(tx)
+              if (ret === '0x') {
                 output = 'Success'
-              } else {
+              } else if (ret.slice(0, 10) === '0x08c379a0') {
                 const stringLength = state.ethers.BigNumber.from(`0x${ret.slice(2 + 4 * 2 + 32 * 2).slice(0, 32 * 2)}`).toNumber()
                 const reason = `0x${ret.substr(138).slice(0, stringLength * 2)}`
                 output = state.ethers.utils.toUtf8String(reason)
+              } else {
+                ret = iface.interface.decodeFunctionResult(property.name, ret)
+                if (property.name.indexOf('multicall') === 0) {
+                  ret = ret.results.map((r, i) => {
+                    const hash = args[0][i].slice(0, 10)
+                    return iface.interface.decodeFunctionResult(hash, r)
+                  })
+                }
+                ret = abiv2(ret, true)
+                output = JSON.stringify(ret, null, 2)
               }
             } catch (err) {
               while (err.error) err = err.error
