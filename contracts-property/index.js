@@ -63,7 +63,21 @@ class ContractsProperty extends HTMLElement {
         property = { signature: 'Unkown property ' + propertyName }
       }
     }
-    const inputs = (property.inputs || []).filter(input => input.indexed !== false)
+    const inputs = []
+    const inputsRaw = (property.inputs || []).filter(input => input.indexed !== false)
+    inputsRaw.forEach(input => {
+      if (input.type === 'tuple') {
+        input.components.forEach(c => {
+          inputs.push({
+            name: `${input.name}.${c.name}`,
+            type: c.type,
+            tuple: true
+          })
+        })
+      } else {
+        inputs.push(input)
+      }
+    })
     let action = 'Read'
     if (property.uiType === 'write') {
       action = 'Encode'
@@ -144,6 +158,7 @@ class ContractsProperty extends HTMLElement {
     }
     const iface = contract.proxy ? contract.proxy.iface : contract.iface
     const args = []
+    let tuple = null
     let txValue = undefined
     let sawEmpty = 0
     Array.from(this.querySelectorAll('input')).forEach(input => {
@@ -158,7 +173,19 @@ class ContractsProperty extends HTMLElement {
         if (input.placeholder.match(/\[\]$/)) {
           value = value.split(',').map(i => i.trim())
         }
-        args.push(value)
+        if (input.parentElement.item.tuple) {
+          if (tuple === null) {
+            tuple = [value]
+          } else {
+            tuple.push(value)
+          }
+        } else {
+          if (tuple) {
+            args.push(tuple)
+            tuple = null
+          }
+          args.push(value)
+        }
       } else {
         sawEmpty = 1
       }
@@ -166,6 +193,9 @@ class ContractsProperty extends HTMLElement {
     if (sawEmpty === 2) {
       alert('Missing argument')
       return
+    }
+    if (tuple) {
+      args.push(tuple)
     }
     let output = ''
     const operating = Math.random()
