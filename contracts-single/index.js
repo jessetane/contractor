@@ -7,16 +7,16 @@ template.innerHTML = `<x-contracts-meta></x-contracts-meta>
 <div id=properties>
   <h2>ABI</h2>
   <div id=sections>
-    <div id=events class="property-group hidden">
-      <h3>Events</h3>
-      <div id=index></div>
-    </div>
     <div id=readable class="property-group hidden">
       <h3>Readable</h3>
       <div id=index></div>
     </div>
     <div id=writable class="property-group hidden">
       <h3>Writable</h3>
+      <div id=index></div>
+    </div>
+    <div id=events class="property-group hidden">
+      <h3>Events</h3>
       <div id=index></div>
     </div>
   </div>
