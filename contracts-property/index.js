@@ -219,6 +219,10 @@ class ContractsProperty extends HTMLElement {
         case 'read':
           let blockTag = 'latest'
           output = await iface[property.name](...args, { blockTag })
+          if (typeof output !== 'string') {
+            output = abiv2(output, true)
+            output = JSON.stringify(output, null, 2)
+          }
           break
         case 'write':
           const tx = await iface.populateTransaction[property.name](...args)
